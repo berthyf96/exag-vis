@@ -1,0 +1,101 @@
+/*
+   Breakpoints
+   ========================================================================== */
+   $xx-small                   : 300px;
+   $x-small                    : 400px;
+   $small                      : 600px;
+   $medium                     : 768px;
+   $medium-wide                : 900px;
+   $large                      : 1024px;
+   $x-large                    : 1280px;
+   $max-width: $x-large !default;
+
+
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-items: center;
+  align-items: center;
+}
+
+.grid .cell {
+  width: 50px;
+  height: 50px;
+  padding: 12px;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  top: 0;
+  object-fit: cover;
+}
+
+.formBox {
+  padding: 6px;
+  min-height: 100%;
+  border-style: solid;
+  border-width: thin;
+  border-radius: 3px;
+  border-color: gray;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 15px;
+
+  @media (max-width: $x-small) {
+    grid-template-columns: repeat(1, 1fr);
+  }
+  @media (max-width: $medium-wide) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: $x-large) {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.videoContainer {
+  width: 100%;
+}

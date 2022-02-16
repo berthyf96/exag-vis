@@ -1,46 +1,83 @@
 import React from 'react';
-import './App.css';
+import './App.scss';
 
-import { AppBar, Typography } from '@material-ui/core';
-import { Paper, Container, Box } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
+import { Container, Box } from '@material-ui/core';
 import { Grid } from '@material-ui/core';
-import { FormControl, FormLabel, FormGroup, FormControlLabel } from '@material-ui/core';
+import { FormControl, FormGroup, FormControlLabel } from '@material-ui/core';
 import { Checkbox } from '@material-ui/core';
 import ImageComponent from './ImageComponent';
+import { createTheme, ThemeProvider } from '@material-ui/core/styles';
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#703fb5',
+    },
+    secondary: {
+      main: '#f50057',
+    },
+  },
 
+  typography: {
+    fontFamily: [
+      'Roboto',
+      'sans-serif',
+    ].join(','),
+    fontSize: 15,
+    h3: {
+      fontWeight: 700,
+      fontSize: '2.2rem'
+    },
+    h4: {
+      fontWeight: 700,
+      fontSize: '1.75rem'
+    },
+    h5: {
+      fontWeight: 500
+    },
+    h6: {
+      fontWeight: 500,
+    },
+    body2: {
+      fontSize: '0.9rem',
+      color: 'rgba(0, 0, 0, 0.55)'
+    }
+  },
+});
 
-var allGifs = [];
+var allVids = [];
 const datasetOpts = [
-  'GrowingBlob32x32_1.00-1.50',
-  'GrowingBlob32x32_2.00-3.00',
-  'GrowingSquareCIFAR32x32_3.00-5.00',
-  'PynoisyOpeningAngle64x64_0.79-1.18',
-  'PynoisySpatialAngle52x52_0.39-1.18',
-  'PynoisySpatialAngle52x52_0.79-0.98',
-  'RoundedCornersCircles100x100_0.10-0.30',
-  'MNIST28x28_1-7',
+  'OpeningAngle_64x64_0.20-0.39',
+  'OpeningAngle_64x64_0.39-0.59',
+  'OpeningAngle_64x64_0.59-0.79',
+  'OpeningAngle_64x64_0.79-0.98',
+  'OpeningAngle_64x64_0.98-1.18',
+  'OpeningAngle_64x64_1.18-1.37',
 ];
-const NOpts = ['2', '3'];
-const nFiltersOpts = ['16', '32', '64'];
-const lambdaCycleOpts = ['1.0', '10.0'];
-const lambdaClsOpts = ['0.1', '1.0', '10.0'];
+const NOpts = ['2'];
+const KOpts = ['1', '2'];
+const nFiltersOpts = ['64'];
+const lambdaCycleOpts = ['100.0'];
+const lambdaClsOpts = ['0.0', '0.1'];
 const genOpts = ['G', 'F'];
 
 
-function parseGifFn(fullGifFn) {
-  // {datasetName}_{datasetRange}_N={N}_K={K}_filters={nFilters}_lcycle={lambdaCycle}_lcls={lambcsCls}_{F|G}.{bunchofnumbers}.gif
-  const gifFn = fullGifFn.split('/').reverse()[0]; // gets basename
-  const gifSubstrings = gifFn.split('_');
-  const gifDataset = gifSubstrings[0] + '_' + gifSubstrings[1];  // {datasetName}_{scaleMin-scaleMax}
-  const gifN = gifSubstrings[2].split('=')[1];  // N={N}
-  const gifNFilters = gifSubstrings[4].split('=')[1];  // filters={nFilters}
-  const gifLambdaCycle = gifSubstrings[5].split('=')[1];  // lcycle={lambdaCycle}
-  const gifLambdaCls = gifSubstrings[6].split('=')[1];  // lcls={lambdaCls}
-  const gifGen = gifSubstrings[7][0]; // G.gif or F.gif
+function parseVidFn(fullVidFn) {
+  // {dataset}_{imageSize}_{datasetRange}_N={N}_K={K}_filters={nFilters}_lcycle={lambdaCycle}_lcls={lambcsCls}_{F|G}.{bunchofnumbers}.mp4
+  const vidFn = fullVidFn.split('/').reverse()[0]; // gets basename
+  const substrings = vidFn.split('_');
+  const vidDataset = substrings[0] + '_' + substrings[1] + '_' + substrings[2]; 
+    // {dataset}_{imageSize}_{scaleStart-scaleStop}
+  const vidN = substrings[3].split('=')[1];  // N={N}
+  const vidK = substrings[4].split('=')[1];  // K={K}
+  const vidNFilters = substrings[5].split('=')[1];  // filters={nFilters}
+  const vidLambdaCycle = substrings[6].split('=')[1];  // lcycle={lambdaCycle}
+  const vidLambdaCls = substrings[7].split('=')[1];  // lcls={lambdaCls}
+  const vidGen = substrings[8][0]; // G.mp4 or F.mp4
   return {
-    path: fullGifFn, fn: gifFn, dataset: gifDataset, N: gifN,
-    nFilters: gifNFilters, lambdaCycle: gifLambdaCycle,
-    lambdaCls: gifLambdaCls, gen: gifGen
+    path: fullVidFn, fn: vidFn, dataset: vidDataset, N: vidN, K: vidK,
+    nFilters: vidNFilters, lambdaCycle: vidLambdaCycle,
+    lambdaCls: vidLambdaCls, gen: vidGen
   }
 }
 
@@ -49,37 +86,42 @@ class App extends React.Component {
   constructor(props) {
     super(props);
 
-    // Get all GIFs and their info.
-    const allGifFns = this.importAll(require.context('./images/', true, /\.(gif)$/));
-    allGifs = allGifFns.map((x) => parseGifFn(x));
+    // Get all MP4s and their info.
+    const allVidFns = this.importAll(require.context('/public/videos/', true, /\.(mp4)$/));
+    allVids = allVidFns.map((x) => parseVidFn(x));
 
     this.state = {
-      showGifs: [],
+      showVids: [],
       datasetSels: [],
       NSels: [],
+      KSels: [],
       nFiltersSels: [],
       lambdaCycleSels: [],
       lambdaClsSels: [],
       genSels: []
     };
+
+    console.log(allVids)
   }
 
   importAll(r) {
     return r.keys().map(r);
   }
 
-  isSelectedGif = gif => {
-    return (this.state.datasetSels.includes(gif.dataset) && 
-      this.state.NSels.includes(gif.N) && 
-      this.state.nFiltersSels.includes(gif.nFilters) &&
-      this.state.lambdaCycleSels.includes(gif.lambdaCycle) &&
-      this.state.lambdaClsSels.includes(gif.lambdaCls) &&
-      this.state.genSels.includes(gif.gen))
+  isSelectedVid = vid => {
+    return (this.state.datasetSels.includes(vid.dataset) && 
+      this.state.NSels.includes(vid.N) && 
+      this.state.KSels.includes(vid.K) &&
+      this.state.nFiltersSels.includes(vid.nFilters) &&
+      this.state.lambdaCycleSels.includes(vid.lambdaCycle) &&
+      this.state.lambdaClsSels.includes(vid.lambdaCls) &&
+      this.state.genSels.includes(vid.gen))
   }
 
-  updateGifs() {
-    this.state.showGifs = allGifs.filter(this.isSelectedGif);
-    console.log(this.state.showGifs)
+  updateVids() {
+    this.setState({ showVids: allVids.filter(this.isSelectedVid) })
+    // this.state.showVids = allVids.filter(this.isSelectedVid);
+    console.log(this.state.showVids)
     this.forceUpdate();
   }
 
@@ -98,7 +140,7 @@ class App extends React.Component {
       sels.splice(idx, 1);
     }
     this.setState({ datasetSels: sels });
-    this.updateGifs();
+    this.updateVids();
   }
 
   handleNChange = event => {
@@ -116,7 +158,25 @@ class App extends React.Component {
       sels.splice(idx, 1);
     }
     this.setState({ NSels: sels });
-    this.updateGifs();
+    this.updateVids();
+  }
+
+  handleKChange = event => {
+    var sels = this.state.KSels;
+    const checked = event.target.checked;
+    const item = event.target.name;
+
+    if (checked && !sels.includes(item)) { 
+      // Item has been checked and need to add to selected datasets.
+      sels.push(item)
+    }
+    if (!checked && sels.includes(item)) {
+      // Item has been unchecked and need to remove from selected datasets.
+      const idx = sels.indexOf(item);
+      sels.splice(idx, 1);
+    }
+    this.setState({ KSels: sels });
+    this.updateVids();
   }
 
   handleNFiltersChange = event => {
@@ -134,7 +194,7 @@ class App extends React.Component {
       sels.splice(idx, 1);
     }
     this.setState({ nFiltersSels: sels });
-    this.updateGifs();
+    this.updateVids();
   }
 
   handleLambdaCycleChange = event => {
@@ -152,7 +212,7 @@ class App extends React.Component {
       sels.splice(idx, 1);
     }
     this.setState({ lambdaCycleSels: sels });
-    this.updateGifs();
+    this.updateVids();
   }
 
   handleLambdaClsChange = event => {
@@ -170,7 +230,7 @@ class App extends React.Component {
       sels.splice(idx, 1);
     }
     this.setState({ lambdaClsSels: sels });
-    this.updateGifs();
+    this.updateVids();
   }
 
   handleGenChange = event => {
@@ -188,180 +248,205 @@ class App extends React.Component {
       sels.splice(idx, 1);
     }
     this.setState({ genSels: sels });
-    this.updateGifs();
+    this.updateVids();
   }
 
   renderGrid() {
     return (
-      <Grid container spacing={2}>
+      <div class='grid'>
       {
-        this.state.showGifs.map(
-          (gif) => <ImageComponent key={gif.fn} gif={gif}/>
+        this.state.showVids.map(
+          (vid) => <ImageComponent key={vid.fn} vid={vid}/>
         )
       }
-      </Grid>
+      </div>
     )
   }
 
   renderDatasetCheckbox() {
     return (
-      <Paper elevation={1}>
-        <FormControl sx={{ m: 3 }} component='fieldset' variant='standard'>
-          <FormLabel component='legend'>Dataset</FormLabel>
-          <FormGroup>
-            {
-              datasetOpts.map(
-                (name, i) => <FormControlLabel key={i}
-                  control={
-                    <Checkbox checked={this.state.datasetSels.includes(name)}
-                      onChange={this.handleDatasetChange} name={name} />
-                  }
-                  label={name} />
-              )
-            }
-          </FormGroup>
-        </FormControl>
-      </Paper>
+      <FormControl sx={{ m: 3 }} component='fieldset' variant='standard'>
+        {/* <FormLabel component='legend'>Dataset</FormLabel> */}
+        <Typography>Dataset</Typography>
+        <FormGroup>
+          {
+            datasetOpts.map(
+              (name, i) => <FormControlLabel key={i}
+                control={
+                  <Checkbox checked={this.state.datasetSels.includes(name)}
+                    onChange={this.handleDatasetChange} name={name} />
+                }
+                label={name} />
+            )
+          }
+        </FormGroup>
+      </FormControl>
     )
   }
 
   renderNCheckbox() {
     return (
-      <Paper elevation={1}>
-        <FormControl sx={{ m: 3 }} component='fieldset' variant='standard'>
-          <FormLabel component='legend'>N</FormLabel>
-          <FormGroup>
-            {
-              NOpts.map(
-                N => <FormControlLabel key={N}
-                  control={
-                    <Checkbox checked={this.state.NSels.includes(N)}
-                      onChange={this.handleNChange} name={N} />
-                  }
-                  label={N} />
-              )
-            }
-          </FormGroup>
-        </FormControl>
-      </Paper>
+      <FormControl sx={{ m: 3 }} component='fieldset' variant='standard'>
+        <Typography>N</Typography>
+        <FormGroup>
+          {
+            NOpts.map(
+              N => <FormControlLabel key={N}
+                control={
+                  <Checkbox checked={this.state.NSels.includes(N)}
+                    onChange={this.handleNChange} name={N} />
+                }
+                label={N} />
+            )
+          }
+        </FormGroup>
+      </FormControl>
+    )
+  }
+
+  renderKCheckbox() {
+    return (
+      <FormControl sx={{ m: 3 }} component='fieldset' variant='standard'>
+        <Typography>K</Typography>
+        <FormGroup>
+          {
+            KOpts.map(
+              K => <FormControlLabel key={K}
+                control={
+                  <Checkbox checked={this.state.KSels.includes(K)}
+                    onChange={this.handleKChange} name={K} />
+                }
+                label={K} />
+            )
+          }
+        </FormGroup>
+      </FormControl>
     )
   }
 
   renderNFiltersCheckbox() {
     return (
-      <Paper elevation={1}>
-        <FormControl sx={{ m: 3 }} component='fieldset' variant='standard'>
-          <FormLabel component='legend'>n_filters</FormLabel>
-          <FormGroup>
-            {
-              nFiltersOpts.map(
-                item => <FormControlLabel key={item}
-                  control={
-                    <Checkbox checked={this.state.nFiltersSels.includes(item)}
-                      onChange={this.handleNFiltersChange} name={item} />
-                  }
-                  label={item} />
-              )
-            }
-          </FormGroup>
-        </FormControl>
-      </Paper>
+      <FormControl sx={{ m: 3 }} component='fieldset' variant='standard'>
+        <Typography>n_filters</Typography>
+        <FormGroup>
+          {
+            nFiltersOpts.map(
+              item => <FormControlLabel key={item}
+                control={
+                  <Checkbox checked={this.state.nFiltersSels.includes(item)}
+                    onChange={this.handleNFiltersChange} name={item} />
+                }
+                label={item} />
+            )
+          }
+        </FormGroup>
+      </FormControl>
     )
   }
 
   renderLambdaCycleCheckbox() {
     return (
-      <Paper elevation={1}>
-        <FormControl sx={{ m: 3 }} component='fieldset' variant='standard'>
-          <FormLabel component='legend'>lambda_cycle</FormLabel>
-          <FormGroup>
-            {
-              lambdaCycleOpts.map(
-                item => <FormControlLabel key={item}
-                  control={
-                    <Checkbox checked={this.state.lambdaCycleSels.includes(item)}
-                      onChange={this.handleLambdaCycleChange} name={item} />
-                  }
-                  label={item} />
-              )
-            }
-          </FormGroup>
-        </FormControl>
-      </Paper>
+      <FormControl sx={{ m: 3 }} component='fieldset' variant='standard'>
+        <Typography>lambda_cycle</Typography>
+        <FormGroup>
+          {
+            lambdaCycleOpts.map(
+              item => <FormControlLabel key={item}
+                control={
+                  <Checkbox checked={this.state.lambdaCycleSels.includes(item)}
+                    onChange={this.handleLambdaCycleChange} name={item} />
+                }
+                label={item} />
+            )
+          }
+        </FormGroup>
+      </FormControl>
     )
   }
 
   renderLambdaClsCheckbox() {
     return (
-      <Paper elevation={1}>
-        <FormControl sx={{ m: 3 }} component='fieldset' variant='standard'>
-          <FormLabel component='legend'>lambda_cls</FormLabel>
-          <FormGroup>
-            {
-              lambdaClsOpts.map(
-                item => <FormControlLabel key={item}
-                  control={
-                    <Checkbox checked={this.state.lambdaClsSels.includes(item)}
-                      onChange={this.handleLambdaClsChange} name={item} />
-                  }
-                  label={item} />
-              )
-            }
-          </FormGroup>
-        </FormControl>
-      </Paper>
+      <FormControl sx={{ m: 3 }} component='fieldset' variant='standard'>
+        <Typography>lambda_cls</Typography>
+        <FormGroup>
+          {
+            lambdaClsOpts.map(
+              item => <FormControlLabel key={item}
+                control={
+                  <Checkbox checked={this.state.lambdaClsSels.includes(item)}
+                    onChange={this.handleLambdaClsChange} name={item} />
+                }
+                label={item} />
+            )
+          }
+        </FormGroup>
+      </FormControl>
     )
   }
 
   renderGenCheckbox() {
     return (
-      <Paper elevation={1}>
-        <FormControl sx={{ m: 3 }} component='fieldset' variant='standard'>
-          <FormLabel component='legend'>Generator</FormLabel>
-          <FormGroup>
-            {
-              genOpts.map(
-                item => <FormControlLabel key={item}
-                  control={
-                    <Checkbox checked={this.state.genSels.includes(item)}
-                      onChange={this.handleGenChange} name={item} />
-                  }
-                  label={item} />
-              )
-            }
-          </FormGroup>
-        </FormControl>
-      </Paper>
+      <FormControl sx={{ m: 3 }} component='fieldset' variant='standard'>
+        <Typography>Generator</Typography>
+        <FormGroup>
+          {
+            genOpts.map(
+              item => <FormControlLabel key={item}
+                control={
+                  <Checkbox checked={this.state.genSels.includes(item)}
+                    onChange={this.handleGenChange} name={item} />
+                }
+                label={item} />
+            )
+          }
+        </FormGroup>
+      </FormControl>
     )
   }
 
   render() {
     return (
       <div className='App'>
-        <Container maxWidth='md' padding={10}>
-          <Box m={2} pt={2}>
-            <Grid container spacing={1}>
-              <Grid item xs={6}><Box> {this.renderDatasetCheckbox()}</Box></Grid>
-              <Grid item xs={3}><Box> {this.renderNCheckbox()}</Box></Grid>
-              <Grid item xs={3}><Box> {this.renderGenCheckbox()}</Box></Grid>
-              <Grid item xs={3}><Box> {this.renderNFiltersCheckbox()}</Box></Grid>
-              <Grid item xs={3}><Box> {this.renderLambdaCycleCheckbox()}</Box></Grid>
-              <Grid item xs={3}><Box> {this.renderLambdaClsCheckbox()}</Box></Grid>
-            </Grid>
+        <ThemeProvider theme={theme}>
+          <Container maxWidth='md' padding={10}>
+            <Box m={2} pt={2}>
+              <Grid container spacing={3}>
+                <Grid item xs={6}>
+                  <div class='formBox'>{this.renderDatasetCheckbox()}</div>
+                </Grid>
+                <Grid item xs={3}>
+                  <div class='formBox'>{this.renderNCheckbox()}</div>
+                </Grid>
+                <Grid item xs={3}>
+                  <div class='formBox'>{this.renderKCheckbox()}</div>
+                </Grid>
+                <Grid item xs={3}>
+                  <div class='formBox'>{this.renderNFiltersCheckbox()}</div>
+                </Grid>
+                <Grid item xs={3}>
+                  <div class='formBox'>{this.renderLambdaCycleCheckbox()}</div>
+                </Grid>
+                <Grid item xs={3}>
+                  <div class='formBox'>{this.renderLambdaClsCheckbox()}</div>
+                </Grid>
+                <Grid item xs={3}>
+                  <div class='formBox'>{this.renderGenCheckbox()}</div>
+                </Grid>
+              </Grid>
+            </Box>
+          </Container>
+          
+          <Box m={6} pt={2}>
+            <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
+              Results
+            </Typography>
+            <hr />
+            {this.renderGrid()}
           </Box>
-        </Container>
-        
-        <Box m={6} pt={2}>
-          <Typography variant='h6' component='div' sx={{ flexGrow: 1 }}>
-            Hyperparameter Search Results
-          </Typography>
-          <hr />
-          {this.renderGrid()}
-        </Box>
+        </ThemeProvider>
       </div>
     );
   }
-  
 }
 
 export default App;

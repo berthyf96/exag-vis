@@ -1,8 +1,5 @@
 import React from 'react';
-import { Card, CardActionArea } from '@material-ui/core';
-import { Dialog, DialogTitle } from '@material-ui/core';
-import { List, ListItem } from '@material-ui/core';
-import { Grid } from '@material-ui/core';
+import { Typography } from '@material-ui/core';
 import ReactFreezeframe from 'react-freezeframe';
 
 
@@ -13,46 +10,38 @@ class ImageComponent extends React.Component {
   }
 
   render() {
-    const gif = this.props.gif;
-    const N = parseInt(gif.N);
-    var K = 0;
-    if (N == 2) {
-        K = 4;
-    }
-    if (N == 3) {
-        K = 2;
-    }
-    if (N == 5) {
-        K = 1;
-    }
+    const vid = this.props.vid;
 
     return (
-      <Grid item xs={2}>
-        <Dialog 
-          open={this.state.openDialog}
-          onClose={() => {this.setState(state => ({ openDialog: false }));}}
-        >
-          <DialogTitle>{gif.dataset} ({gif.gen})</DialogTitle>
-          <List>
-            {/* GIF info */}
-            <ListItem>N = {gif.N}, K = {K}</ListItem>
-            <ListItem>n_filters = {gif.nFilters}</ListItem>
-            <ListItem>lambda_cycle = {gif.lambdaCycle}</ListItem>
-            <ListItem>lambda_cls = {gif.lambdaCls}</ListItem>
-          </List>
-        </Dialog>
+      <div class='videoContainer'>
+        <Typography variant="body1" color="text.secondary">
+          {vid.dataset}
+        </Typography>
+        <Typography variant="body2" color="text.primary">
+          N = {vid.N}, K = {vid.K}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          n_filters = {vid.nFilters}, lambda_cycle = {vid.lambdaCycle}, lambda_cls = {vid.lambdaCls}
+        </Typography>
 
-        <Card>
+        <video
+          onMouseOver={event => event.target.play()}
+          onMouseOut={event => event.target.pause()}
+          loop>
+          <source src={vid.path} type='video/mp4'/>
+        </video>
+
+        {/* <Card>
           <CardActionArea onClick={() => {this.setState(state => ({ openDialog: true }));}}>
-            <ReactFreezeframe
-                src={gif.path}
+            {/* <ReactFreezeframe
+                src={vid.path}
                 options={{
                     overlay: false
                 }}
-            />
+            /> 
           </CardActionArea>
-        </Card>
-      </Grid>
+        </Card> */}
+      </div>
     )
   }
 }
