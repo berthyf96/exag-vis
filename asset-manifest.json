@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/exag-vis/static/css/main.20af30b7.css",
-    "main.js": "/exag-vis/static/js/main.fe9d0a31.js",
+    "main.js": "/exag-vis/static/js/main.1c51964d.js",
     "static/js/787.67ed1cfd.chunk.js": "/exag-vis/static/js/787.67ed1cfd.chunk.js",
     "static/media/OpeningAngle_64x64_1.18-1.37_N=2_K=3_filters=64_lcycle=100.0_lcls=0.1_F.mp4": "/exag-vis/static/media/OpeningAngle_64x64_1.18-1.37_N=2_K=3_filters=64_lcycle=100.0_lcls=0.1_F.6ccaa0970c933875b3cc.mp4",
     "static/media/OpeningAngle_64x64_0.79-0.98_N=2_K=3_filters=64_lcycle=100.0_lcls=0.0_G.mp4": "/exag-vis/static/media/OpeningAngle_64x64_0.79-0.98_N=2_K=3_filters=64_lcycle=100.0_lcls=0.0_G.b82e0ca258b1e94d9d9f.mp4",
@@ -77,11 +77,11 @@
     "static/media/OpeningAngle_64x64_0.39-0.59_N=2_K=1_filters=64_lcycle=100.0_lcls=0.0_G.mp4": "/exag-vis/static/media/OpeningAngle_64x64_0.39-0.59_N=2_K=1_filters=64_lcycle=100.0_lcls=0.0_G.ba10ba0296195839c306.mp4",
     "index.html": "/exag-vis/index.html",
     "main.20af30b7.css.map": "/exag-vis/static/css/main.20af30b7.css.map",
-    "main.fe9d0a31.js.map": "/exag-vis/static/js/main.fe9d0a31.js.map",
+    "main.1c51964d.js.map": "/exag-vis/static/js/main.1c51964d.js.map",
     "787.67ed1cfd.chunk.js.map": "/exag-vis/static/js/787.67ed1cfd.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.20af30b7.css",
-    "static/js/main.fe9d0a31.js"
+    "static/js/main.1c51964d.js"
   ]
 }
