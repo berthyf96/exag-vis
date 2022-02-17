@@ -9,38 +9,15 @@ import { Checkbox } from '@material-ui/core';
 import ImageComponent from './ImageComponent';
 import { createTheme, ThemeProvider } from '@material-ui/core/styles';
 const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#703fb5',
-    },
-    secondary: {
-      main: '#f50057',
-    },
-  },
-
   typography: {
     fontFamily: [
       'Roboto',
       'sans-serif',
     ].join(','),
     fontSize: 15,
-    h3: {
-      fontWeight: 700,
-      fontSize: '2.2rem'
-    },
-    h4: {
-      fontWeight: 700,
-      fontSize: '1.75rem'
-    },
-    h5: {
-      fontWeight: 500
-    },
-    h6: {
-      fontWeight: 500,
-    },
     body2: {
       fontSize: '0.9rem',
-      color: 'rgba(0, 0, 0, 0.55)'
+      color: 'rgba(0, 0, 0, 0.55)',
     }
   },
 });
@@ -55,7 +32,7 @@ const datasetOpts = [
   'OpeningAngle_64x64_1.18-1.37',
 ];
 const NOpts = ['2'];
-const KOpts = ['1', '2'];
+const KOpts = ['1', '2', '3'];
 const nFiltersOpts = ['64'];
 const lambdaCycleOpts = ['100.0'];
 const lambdaClsOpts = ['0.0', '0.1'];
